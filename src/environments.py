@@ -21,13 +21,8 @@ verbose_str = ""
 env = None
 
 ###########################################################################
-# Activation functions
+# Environment
 ###########################################################################
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
 
 def init_swarmGrid_env(grid_nb_rows, grid_nb_cols, learning_modes, flags_distance_mode, learning_with_noise_std, flag_pattern, flag_target, init_cell_state_value, nn_controller, agent_controller_weights, verbose_debug_bool, analysis_dir):
     
@@ -437,14 +432,13 @@ class swarmGrid:
 
     def set_agent_controller_weights(self, agent_controller_weights, agent_additional_weights=None):
         self.agent_controller_weights = agent_controller_weights
-        # self.agent_controller.setWeightsFromList(agent_controller_weights)
         self.agent_controller.set_weights_biases_vectors_from_list(agent_controller_weights)
 
         if self.agent_type == agent3Outputs_Devert2011:
             self.agent_additional_weights = agent_additional_weights
             agents = self.get_agents()
             for agent in agents:
-                agent.agent_additional_weights=agent_additional_weights # check si ça pose probleme en cas de deletion et reinsertion (agents sans additional_weights) ?
+                agent.agent_additional_weights=agent_additional_weights
 
     #---------------------------------------------------
 
@@ -701,18 +695,8 @@ class swarmGrid:
         if (self.agent_type == agent3Outputs_Devert2011):
             neighbors_states += agent.get_internal_chemicals()
         
-        # print("final neighbors states", neighbors_states, "len neighbors states", len(neighbors_states))
-
-        # print("compute_agent_state: agent.pos:", agent.pos, ", its neighbors:", agent.neighbors_NWES, "neighbors states:", neighbors_states)
-
-
-        # print("prima di set_state - state:", agent.state, "agent.get_external_chemicals_to_spread():", agent.get_external_chemicals_to_spread(), "agent.get_phenotype():", agent.get_phenotype())
-        state = self.agent_controller.predict(neighbors_states) # forwardPropagation, stableSigmoid on the last layer       
-        # print("compute_agent_state: agent.pos:", agent.pos, "neighbors states:", neighbors_states, "state:", state)
-        # print(self.agent_controller.getWeightsList())
-        
+        state = self.agent_controller.predict(neighbors_states) # forwardPropagation    
         return state
-        # print("dopo di set_state - state:", agent.state, "agent.get_external_chemicals_to_spread():", agent.get_external_chemicals_to_spread(), "agent.get_phenotype():", agent.get_phenotype())
 
     #---------------------------------------------------
 
@@ -908,9 +892,6 @@ class swarmGrid:
             for n in range(nb_repetitions):
                 deleted_map_pos_agent = {}
 
-                # print("controller:", self.agent_controller_weights)
-
-                
                 # This code is similar to setup_deletion as it manages the deletion of tiles:
                 # Their position will be modified in step_random_async_update_sliding_puzzle.
                 # In this setup, the automata update is always asynchrone (random_async_update)
@@ -935,10 +916,6 @@ class swarmGrid:
                         deleted_agents_per_step.append([a.pos for a in agents_to_delete])
                         flag = self.get_flag_from_grid()
                         flags.append(flag)
-                        # print("env.eval_flags_distance(flag)", env.eval_flags_distance(flag))
-                        # print("\t", flag)
-                        # if step == 3:
-                        #     break
 
                         if step >= time_window_start and step <= time_window_end:
                             sum_flags_distances += env.eval_flags_distance(flag)
@@ -951,8 +928,6 @@ class swarmGrid:
 
 
                     mean_tw_flags_distances = sum_flags_distances/(time_window_end - time_window_start)
-                    # if tick == 230 and proba_move == 0.5:
-                    #     print("mean_tw_flags_distances = sum_flags_distances/(time_window_end - time_window_start)", mean_tw_flags_distances, sum_flags_distances, time_window_end, time_window_start)
 
                     # Save flags for this run
                     self.write_flag_data_swarm(setup_name=setup_name_tick, run=run, n=n, time_steps=time_steps, flags=flags, permutated_agents_per_step=[], deleted_agents_per_step=deleted_agents_per_step, analysis_dir=analysis_dir, nb_moves_per_step=nb_moves_per_step)
@@ -980,10 +955,7 @@ class swarmGrid:
             os.makedirs(dir_name, exist_ok=True)
             save_data_to_csv(dir_name+file_name, [], header=["Run", "Setup", "Deletions", "Fluidity", "N", "Flags_distance"])
 
-        data_one_repetition = [str(run), setup_name_tick, str(deletions), str(proba_move), str(n), str(mean_tw_flags_distances).strip()]
-        # if deletions == 230 and proba_move == 0.5:
-        #     print("mean_tw_flags_distances", n, mean_tw_flags_distances)
-        
+        data_one_repetition = [str(run), setup_name_tick, str(deletions), str(proba_move), str(n), str(mean_tw_flags_distances).strip()]  
         save_data_to_csv(dir_name+file_name, [data_one_repetition])
 
     #---------------------------------------------------
@@ -1187,36 +1159,6 @@ class swarmGrid:
     
     #---------------------------------------------------
 
-    # def eval_flags_distance(self, flag):
-
-    #     if self.flags_distance_mode == "MSE":
-    #         sum_states = 0.0
-    #         positions = self.grid_map_pos_agent.keys() # all positions in the grid
-    #         assert len(positions) == self.grid_size, f"\eval_flags_distance, len(positions) {len(positions)} != grid_size {self.grid_size}"
-    #         for p, pos in enumerate(positions):
-    #             if self.grid_map_pos_agent[pos] is not None:
-    #                 sum_states += (self.flag_target[p] - flag[pos])**2
-    #         flags_distance = sum_states/self.grid_size
-
-    #     elif self.flags_distance_mode == "SSIM": # flags_distance in [0 = most similar, 2 = strong dissimilarity]
-    #         flag_list = self.convert_flag_to_list(flag)
-    #         img1 = convert_flag_to_image(flag=flag_list, grid_nb_rows=self.grid_nb_rows, grid_nb_cols=self.grid_nb_cols)
-    #         img2 = convert_flag_to_image(flag=self.flag_target, grid_nb_rows=self.grid_nb_rows, grid_nb_cols=self.grid_nb_cols)
-    #         flags_distance = get_images_distance_SSIM(image_generated=img1, image_ref=img2)
-
-    #     elif self.flags_distance_mode == "CLIP": # flags_distance in [0 = most similar, 2 = strong dissimilarity]
-    #         flag_list = self.convert_flag_to_list(flag)
-    #         img1 = convert_flag_to_image(flag=flag_list, grid_nb_rows=self.grid_nb_rows, grid_nb_cols=self.grid_nb_cols)
-    #         img2 = convert_flag_to_image(flag=self.flag_target, grid_nb_rows=self.grid_nb_rows, grid_nb_cols=self.grid_nb_cols)
-    #         flags_distance = get_images_distance_CLIP(image_generated=img1, image_ref=img2)
-        
-    #     else:
-    #         print("Error in eval_flags_distance: invalid flags_distance_mode.")
-
-    #     return flags_distance
-    
-    #---------------------------------------------------
-
     def eval_flags_distance(self, flag):
 
         sum_states = 0.0
@@ -1225,18 +1167,14 @@ class swarmGrid:
         positions = self.grid_map_pos_agent.keys() # all positions in the grid
         # assert len(positions) == self.grid_size, f"\eval_flags_distance, len(positions) {len(positions)} != grid_size {self.grid_size}"
         for p, pos in enumerate(positions):
-            # if self.grid_map_pos_agent[pos] is not None:
             if flag[pos] is not None:
                 sum_states += (self.flag_target[p] - flag[pos])**2
-                # print("eval_flags_distance:", "pos=", pos, self.flag_target[p], flag[pos], "-->",  ((self.flag_target[p] - flag[pos])**2))
                 nb_agents += 1
 
-        # flags_distance = sum_states/self.grid_size
         if nb_agents == 0:
             return 0.0
 
         flags_distance = sum_states/nb_agents
-        # print("eval_flags_distance:", sum_states, "/", nb_agents, "= flags distance", flags_distance) 
         return flags_distance
     
     #---------------------------------------------------
@@ -1303,8 +1241,7 @@ class swarmGrid:
         data_env_flag = []
         for step in range(time_steps):
             flags_distance = self.eval_flags_distance(flags[step])
-            # print(step, flags_distance)
-            # print("\t", flags[step])
+
 
             if permutated_agents_per_step:
                 #TODO: perché convert flag to list? Non é già list?
@@ -1613,37 +1550,3 @@ class swarmGrid:
 
             plt.clf()
             plt.close()
-
-
-    #---------------------------------------------------
-
-    # @staticmethod
-    # def plot_merged_multi_flag_fitnesses_from_file(data_flag_dirs, setups_names, run, analysis_dir_plots):
-
-    #     plot_colors = ['#0173b2', '#de8f05', '#cc78bc'] # blue, orange
-    #     labels = ["best_ind d=1.0", "best_ind d=0.9", "best_ind d=1.0 -> d=0.9"]
-    #     for setup, data_flag_dirs_phase1_and_phase2 in enumerate(data_flag_dirs): # data_flag_dirs = [[data setup0 phase1, data setup0 phase2], [data setup1 phase1, data setup1 phase2]]
-    #         for phase, data_flag_dir in enumerate(data_flag_dirs_phase1_and_phase2):
-    #             data_flag_files = os.listdir(data_flag_dir)
-    #             for data_flag_file in data_flag_files:
-    #                 dataset = pd.read_csv(data_flag_dir+"/"+data_flag_file)
-    #                 x = dataset['Step'].tolist()
-    #                 y = dataset['Flags_distance'].tolist()
-    #                 n = int(data_flag_file.split("n_")[1].split(".csv")[0])
-    #                 plt.plot(x, y, color=plot_colors[phase], label=labels[phase] if n == 0 else "")
-    #                 print(labels[phase], data_flag_dir)
-
-    #         plt.ylim(-0.1, 1) # 0 and 1 are respectively min and max values of flag distance
-    #         plt.xlabel("Steps", fontsize=12)
-    #         plt.ylabel("Flags distance", fontsize=12)
-    #         plt.title(f"Flags distance related to the flag development over steps. Run {run}\n{setups_names[setup]}, {len(data_flag_files)} repetitions", fontsize=12)
-    #         plt.legend()
-
-    #         dir_name = f"{analysis_dir_plots}/{setups_names[setup]}"
-    #         if not (os.path.exists(dir_name)):
-    #             os.makedirs(dir_name, exist_ok=True)
-    #         plt.savefig(f"{dir_name}/{setups_names[setup]}_control_merged_flag_fitnesses_run_{run:03}.png")
-
-    #         plt.clf()
-    #         plt.close()
-

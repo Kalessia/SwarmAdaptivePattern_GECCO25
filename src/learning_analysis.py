@@ -190,13 +190,9 @@ def write_best_inds_ever_and_best_ind_per_run(dataset_path, switch_gen, save_bes
                 
 def plot_single_run_data(run, params):  # TODO: si on a un autre setup que "incremental" cela crushes???
 
-    # if run != 4 :
-    #     return
-
     time_run = time.time()
     print(f"learning_analysis plots for the single run n.{run} - Started")
     os.makedirs(params['analysis_dir']['root']+ f"/run_{run:03}/plots/evo", exist_ok=True)
-    # os.makedirs(params['analysis_dir']['root']+ f"/run_{run:03}/data/flags_best_inds_ever", exist_ok=True)
 
     nb_evals = params['evolutionary_settings']['nb_evals']
     switch_eval = params['evolutionary_settings']['sliding_puzzle_incremental']['sliding_puzzle_incremental_switch_eval']
@@ -239,7 +235,6 @@ def plot_single_run_data(run, params):  # TODO: si on a un autre setup que "incr
         for step in range(time_steps):
             flag_list = get_flag_list_from_dataset_step(dataset, step)
             fitness = dataset.loc[(dataset.Step==step),['Flags_distance']].values.tolist()[0][0]
-            # time_window_zone = dataset.loc[(dataset.Step==step),['Time_window_zone']].values.tolist()[0][0]
             
             # TODO if deleted pos in file, if incremental learning ?
             deleted_pos = dataset.loc[(dataset.Step==step),['Deleted_agents_positions']].values.tolist()[0][0]
@@ -247,20 +242,20 @@ def plot_single_run_data(run, params):  # TODO: si on a un autre setup que "incr
             nb_moves_per_step = dataset.loc[(dataset.Step==step),['Nb_moves']].values.tolist()[0][0]
 
             if step in steps:
-                # swarmGrid.plot_flag(grid_nb_rows=params['grid']['grid_nb_rows'],
-                #                     grid_nb_cols=params['grid']['grid_nb_cols'],
-                #                     setup_name=None,
-                #                     run=run,
-                #                     nb_ind=nb_ind,
-                #                     gen=gen,
-                #                     nb_eval=nb_eval,
-                #                     n="",
-                #                     step=step,
-                #                     flag=flag_list,
-                #                     fitness=fitness,
-                #                     deleted_pos=deleted_pos,
-                #                     nb_moves_per_step=nb_moves_per_step,
-                #                     analysis_dir_plots=params['analysis_dir']['root']+ f"/run_{run:03}/plots/env")
+                swarmGrid.plot_flag(grid_nb_rows=params['grid']['grid_nb_rows'],
+                                    grid_nb_cols=params['grid']['grid_nb_cols'],
+                                    setup_name=None,
+                                    run=run,
+                                    nb_ind=nb_ind,
+                                    gen=gen,
+                                    nb_eval=nb_eval,
+                                    n="",
+                                    step=step,
+                                    flag=flag_list,
+                                    fitness=fitness,
+                                    deleted_pos=deleted_pos,
+                                    nb_moves_per_step=nb_moves_per_step,
+                                    analysis_dir_plots=params['analysis_dir']['root']+ f"/run_{run:03}/plots/env")
             
                 # Write this individual
                 if step == steps[0]:
@@ -269,9 +264,6 @@ def plot_single_run_data(run, params):  # TODO: si on a un autre setup que "incr
                         with open (file_path, 'w') as f:
                             f.write(str(ind))
 
-            # data_env_flag.append([str(gen), str(step), str(fitness).strip(), str(time_window_zone).strip(), str(flag_list.tolist()).strip(), str(ind).strip()])
-
-        # save_data_to_csv(params['analysis_dir']['root']+ f"/run_{run:03}/data/flags_best_inds_ever/run_{run:03}_gen_{gen:05}_eval_{nb_eval:07}_individual_{nb_ind:03}.csv", data_env_flag, header = ["Generation", "Step", "Flags_distance", "Time_window_zone", "Flag", "Individual"])
 
         swarmGrid.plot_flag_fitnesses_from_file(data_flag_file=params['analysis_dir']['root']+ f"/run_{run:03}/data/data_env_flag/data_env_flag_run_{run:03}_gen_{gen:05}_eval_{nb_eval:07}.csv",
                                                 setup_name=None,
@@ -360,19 +352,19 @@ def plot_all_runs_data(params):
     dataset = pd.read_csv(params['analysis_dir']['root']+"/data_all_runs/data_env_flag_target.csv")
     flag_list = get_flag_list_from_dataset_step(dataset, 0)
 
-    # swarmGrid.plot_flag(grid_nb_rows=params['grid']['grid_nb_rows'],
-    #                 grid_nb_cols=params['grid']['grid_nb_cols'],
-    #                 setup_name=None,
-    #                 run=run,
-    #                 nb_ind=None,
-    #                 gen=0,
-    #                 nb_eval=0,
-    #                 n="",
-    #                 step=0,
-    #                 flag=flag_list,
-    #                 fitness=0,
-    #                 deleted_pos=[],
-    #                 analysis_dir_plots=params['analysis_dir']['root']+"/plots_all_runs")
+    swarmGrid.plot_flag(grid_nb_rows=params['grid']['grid_nb_rows'],
+                    grid_nb_cols=params['grid']['grid_nb_cols'],
+                    setup_name=None,
+                    run=run,
+                    nb_ind=None,
+                    gen=0,
+                    nb_eval=0,
+                    n="",
+                    step=0,
+                    flag=flag_list,
+                    fitness=0,
+                    deleted_pos=[],
+                    analysis_dir_plots=params['analysis_dir']['root']+"/plots_all_runs")
     
     print(f"Plots for all the runs completed.")
 
@@ -450,8 +442,8 @@ def plot_best_inds_ever(dataset_path, nb_evals, grid_size, nb_deletions, density
         plt.step(evals, best_fitnesses_ever, where='post', label= f"run {run}") # plot
 
     # Plot phase1-phase2 delimeter and max fitness limit
-    x_end = nb_evals
-    y = 1
+    # x_end = nb_evals
+    # y = 1
     # if switch_eval is not None:
     #     plt.axvline(x=switch_eval, color='r', linestyle='--')
     #     y = 1 - (nb_deletions[1]/grid_size)
@@ -493,7 +485,6 @@ def plot_best_inds_per_gen(dataset_path, nb_evals, grid_size, nb_deletions, swit
     evaluations = filtered_dataset['Max_evaluation_per_gen'].unique()
 
     plt.figure(figsize=(12, 7))
-    # sns.set_theme(style='whitegrid')
     sns.set_theme(style='darkgrid')
     _, ax = plt.subplots()
     sns.boxplot(x='Max_evaluation_per_gen',
@@ -505,17 +496,17 @@ def plot_best_inds_per_gen(dataset_path, nb_evals, grid_size, nb_deletions, swit
                 ax=ax) # individuals of differents runs with same generation have also same nb_evaluation, so dataset is grouped by "nb_eval" in the "Evaluation" column
 
     # Plot phase1-phase2 delimeter and max fitness limit
-    x_end = len(evaluations)
-    y = 1
-    if switch_eval is not None:
-        index = bisect.bisect_left(evaluations, switch_eval) # bisect_left returns the 1st index where switch_eval would be inserted to maintain the list order
-        plt.axvline(x=index-0.5, color='r', linestyle='--')
-        y = 1 - (nb_deletions[1]/grid_size)
-        plt.plot([index-0.5, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue') # max fitness limit phase2
-        x_end = index-0.5
-        y = 1 - (nb_deletions[0]/grid_size)
+    # x_end = len(evaluations)
+    # y = 1
+    # if switch_eval is not None:
+    #     index = bisect.bisect_left(evaluations, switch_eval) # bisect_left returns the 1st index where switch_eval would be inserted to maintain the list order
+    #     plt.axvline(x=index-0.5, color='r', linestyle='--')
+    #     y = 1 - (nb_deletions[1]/grid_size)
+    #     plt.plot([index-0.5, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue') # max fitness limit phase2
+    #     x_end = index-0.5
+    #     y = 1 - (nb_deletions[0]/grid_size)
 
-    plt.plot([0, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue', label=f"worst flags dist") # max fitness limit phase1
+    # plt.plot([0, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue', label=f"worst flags dist") # max fitness limit phase1
 
     # Plot best inds ever
     if with_best_ever_bool:
@@ -560,16 +551,16 @@ def plot_all_pop_fitnesses_mean(dataset_path, nb_evals, grid_size, nb_deletions,
         plt.fill_between(x=evals, y1=fitnesses_quantile25, y2=fitnesses_quantile75, alpha=0.6)
 
     # Plot phase1-phase2 delimeter and max fitness limit
-    x_end = nb_evals
-    y = 1
-    if switch_eval is not None:
-        plt.axvline(x=switch_eval, color='r', linestyle='--')
-        y = 1 - (nb_deletions[1]/grid_size)
-        plt.plot([switch_eval, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue') # max fitness limit phase2
-        x_end = switch_eval
-        y = 1 - (nb_deletions[0]/grid_size)
+    # x_end = nb_evals
+    # y = 1
+    # if switch_eval is not None:
+    #     plt.axvline(x=switch_eval, color='r', linestyle='--')
+    #     y = 1 - (nb_deletions[1]/grid_size)
+    #     plt.plot([switch_eval, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue') # max fitness limit phase2
+    #     x_end = switch_eval
+    #     y = 1 - (nb_deletions[0]/grid_size)
     
-    plt.plot([0, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue', label=f"worst flags dist") # max fitness limit phase1
+    # plt.plot([0, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue', label=f"worst flags dist") # max fitness limit phase1
 
     plt.ylim(-0.1, 1.1) # 0 and 1 are respectively min and max values of flag distance (fitness)
     plt.xlim(0, nb_evals)
@@ -598,16 +589,16 @@ def plot_all_pop_fitnesses_median(dataset_path, nb_evals, grid_size, nb_deletion
         plt.fill_between(x=evals, y1=fitnesses_quantile25, y2=fitnesses_quantile75, alpha=0.6)
 
     # Plot phase1-phase2 delimeter and max fitness limit
-    x_end = nb_evals
-    y = 1
-    if switch_eval is not None:
-        plt.axvline(x=switch_eval, color='r', linestyle='--')
-        y = 1 - (nb_deletions[1]/grid_size)
-        plt.plot([switch_eval, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue') # max fitness limit phase2
-        x_end = switch_eval
-        y = 1 - (nb_deletions[0]/grid_size)
+    # x_end = nb_evals
+    # y = 1
+    # if switch_eval is not None:
+    #     plt.axvline(x=switch_eval, color='r', linestyle='--')
+    #     y = 1 - (nb_deletions[1]/grid_size)
+    #     plt.plot([switch_eval, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue') # max fitness limit phase2
+    #     x_end = switch_eval
+    #     y = 1 - (nb_deletions[0]/grid_size)
     
-    plt.plot([0, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue', label=f"worst flags dist") # max fitness limit phase1
+    # plt.plot([0, x_end], [y, y], linestyle=':', linewidth=2.0, color='tab:blue', label=f"worst flags dist") # max fitness limit phase1
 
 
     plt.ylim(-0.1, 1.1) # 0 and 1 are respectively min and max values of flag distance (fitness)

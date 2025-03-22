@@ -24,7 +24,7 @@
 
     "grid info": "flag_patterns in ['two-bands', 'three-bands', 'centered-disc', 'not-centered-disc', 'centered-half-discs', 'not-centered-half-discs']. Set init_cell_state_value as a scalar or null (random).",
     "grid": {
-        "flag_pattern": "two-bands",
+        "flag_pattern": "centered-disc",
         "grid_nb_rows": 16,
         "grid_nb_cols": 16,
         "init_cell_state_value": 0.0

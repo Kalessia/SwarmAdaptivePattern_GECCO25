@@ -10,12 +10,9 @@ This project implements the evolutionary algorithm **CMA-ES to evolve the optima
 ## **To run an experiment: Learning, Swarm (generalization), and Plots**
 
 -   Set the learning and generalization parameters by modifying <u>learning_params.json</u> and <u>swarm_params.json</u>. The parameters are already settled to reproduce the paper results.
-    
 -   In the Bash script <u>launch.sh</u>, uncomment the lines that you wish to run. If you run <u>learning_main.py</u> only, you can later execute <u>swarm_main.py</u> or the analysis scripts by commenting out <u>learning_main.py</u> and filling the <u>learning_analysis_dir</u> and <u>swarm_analysis_dir</u> fields.
-    
 -   From the *src* directory, execute the Bash script <u>launch.sh</u>:
     `~/SwarmAdaptivePattern_GECCO25/src$ ./launch.sh` 
-    
 -   The results will be stored in a newly created <u>simulationAnalysis</u> folder.
 
 

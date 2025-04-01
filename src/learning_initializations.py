@@ -54,6 +54,8 @@ def check_params_validity(params):
 
     if params['evolutionary_settings']['env_name'] != "sliding_puzzle_incremental":
         params['evolutionary_settings']['sliding_puzzle_incremental']['sliding_puzzle_incremental_switch_eval'] = None # used in learning_analysis.py to plot the switch eval line (setups delimiter)
+    if not params['evolutionary_settings']['sliding_puzzle_nb_intrasteps']:
+        params['evolutionary_settings']['sliding_puzzle_nb_intrasteps'] = None
 
     if params['evolutionary_settings']['env_name'] == "sliding_puzzle_incremental":
         if params['evolutionary_settings']['sliding_puzzle_incremental']['sliding_puzzle_incremental_nb_deletions_units'] is None:
@@ -145,6 +147,7 @@ def set_env(params):
                 'flag_target': None,
                 'init_cell_state_value': params['grid']['init_cell_state_value'],
                 'controller': nn_controller,
+                'nb_intrasteps': params['evolutionary_settings']['sliding_puzzle_nb_intrasteps'],
                 'time_steps': params['environment']['time_steps'],
                 'time_window_start': params['environment']['time_window_start'],
                 'time_window_end': params['environment']['time_window_end'],
@@ -169,6 +172,8 @@ def set_env(params):
                 'flag_target': None,
                 'init_cell_state_value': params['grid']['init_cell_state_value'],
                 'controller': nn_controller,
+                'nb_intrasteps': params['evolutionary_settings']['sliding_puzzle_nb_intrasteps'],
+
                 'time_steps': params['environment']['time_steps'],
                 'time_window_start': params['environment']['time_window_start'],
                 'time_window_end': params['environment']['time_window_end'],

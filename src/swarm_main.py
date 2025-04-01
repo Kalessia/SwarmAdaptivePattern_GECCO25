@@ -37,6 +37,7 @@ def swarm_simulation(run, best_ind, best_ind_run, best_inds_per_run_per_phase, s
                              init_cell_state_value=swarm_params['init_cell_state_value'],
                              nn_controller=swarm_params['controller'],
                              agent_controller_weights=best_ind,
+                             nb_intrasteps=None,
                              verbose_debug_bool=swarm_params['verbose_debug'],
                              analysis_dir=swarm_params['analysis_dir'])
 

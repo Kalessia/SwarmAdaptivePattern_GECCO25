@@ -228,7 +228,8 @@ def plot_single_run_data(run, params):  # TODO: si on a un autre setup que "incr
         dataset = dataset_gen.loc[(dataset_gen.Individual==str(ind))]
         nb_ind = dataset['Nb_ind'].unique()[0]
 
-        if index == best_inds_ever_dataset.index[-3]: # we plot all steps for the last (the best) individual
+        last_indexes = min(len(best_inds_ever_dataset), 3)
+        if index >= best_inds_ever_dataset.index[-last_indexes]: # for the last 'last_indexes' individuals we plot all development steps 
             steps = dataset['Step'].unique()
 
         # data_env_flag = []
@@ -240,6 +241,9 @@ def plot_single_run_data(run, params):  # TODO: si on a un autre setup que "incr
             deleted_pos = dataset.loc[(dataset.Step==step),['Deleted_agents_positions']].values.tolist()[0][0]
             deleted_pos = eval(deleted_pos)
             nb_moves_per_step = dataset.loc[(dataset.Step==step),['Nb_moves']].values.tolist()[0][0]
+
+            flag_signals_list = dataset.loc[(dataset.Step==step),['Flag_signals']].values.tolist()[0][0]
+            flag_signals_list = eval(flag_signals_list)
 
             if step in steps:
                 swarmGrid.plot_flag(grid_nb_rows=params['grid']['grid_nb_rows'],
@@ -256,6 +260,22 @@ def plot_single_run_data(run, params):  # TODO: si on a un autre setup que "incr
                                     deleted_pos=deleted_pos,
                                     nb_moves_per_step=nb_moves_per_step,
                                     analysis_dir_plots=params['analysis_dir']['root']+ f"/run_{run:03}/plots/env")
+
+                # signals
+                swarmGrid.plot_flag(grid_nb_rows=params['grid']['grid_nb_rows'],
+                                    grid_nb_cols=params['grid']['grid_nb_cols'],
+                                    setup_name=None,
+                                    run=run,
+                                    nb_ind=nb_ind,
+                                    gen=gen,
+                                    nb_eval=nb_eval,
+                                    n="",
+                                    step=step,
+                                    flag=flag_signals_list,
+                                    fitness=fitness,
+                                    deleted_pos=deleted_pos,
+                                    nb_moves_per_step=nb_moves_per_step,
+                                    analysis_dir_plots=params['analysis_dir']['root']+ f"/run_{run:03}/plots/env/signals")
             
                 # Write this individual
                 if step == steps[0]:
@@ -458,7 +478,7 @@ def plot_best_inds_ever(dataset_path, nb_evals, grid_size, nb_deletions, density
     plt.xlim(0, nb_evals)
     plt.yticks([0, 0.5, 1.0], fontsize=18)
     plt.xticks([0, 7000, 14000], fontsize=18)
-    plt.title(f"Learning $\\rho$={density}, $\\Phi$={fluidity}" + f"\n{params['grid']['flag_pattern']} {params['grid']['grid_nb_rows']}x{params['grid']['grid_nb_cols']}, 11 runs, only best ever", fontsize=18)
+    plt.title(f"Learning $\\rho$={density}, $\\Phi$={fluidity}" + f"\n{params['grid']['flag_pattern']} {params['grid']['grid_nb_rows']}x{params['grid']['grid_nb_cols']}, {params['evolutionary_settings']['nb_runs']} runs, only best ever", fontsize=18)
     plt.xlabel("Evaluations", fontsize=18)
     plt.ylabel("Distance", fontsize=18)
     plt.legend(loc="upper right") 

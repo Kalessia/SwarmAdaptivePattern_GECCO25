@@ -24,7 +24,7 @@ env = None
 # Environment
 ###########################################################################
 
-def init_swarmGrid_env(grid_nb_rows, grid_nb_cols, learning_modes, flags_distance_mode, learning_with_noise_std, flag_pattern, flag_target, init_cell_state_value, nn_controller, agent_controller_weights, verbose_debug_bool, analysis_dir):
+def init_swarmGrid_env(grid_nb_rows, grid_nb_cols, learning_modes, flags_distance_mode, learning_with_noise_std, flag_pattern, flag_target, init_cell_state_value, nn_controller, agent_controller_weights, nb_intrasteps, verbose_debug_bool, analysis_dir):
     
     global verbose_debug, env
 
@@ -41,7 +41,8 @@ def init_swarmGrid_env(grid_nb_rows, grid_nb_cols, learning_modes, flags_distanc
                         flag_pattern=flag_pattern,
                         flag_target=flag_target,
                         init_cell_state_value=init_cell_state_value,
-                        nn_controller=nn_controller)
+                        nn_controller=nn_controller,
+                        nb_intrasteps=nb_intrasteps)
     
     env.write_flag_target_data(analysis_dir) # check emplacement
     
@@ -248,6 +249,7 @@ def flag_automata(env_eval_function_params, analysis_dir, run, gen, nb_eval, nb_
     flags_distances = []
     in_t_window_zone_bools = []
     flags = []
+    flags_signals = []
 
     init_cell_state_value = env_eval_function_params['init_cell_state_value'] # init_cell_state_value is None or float depending on user settings in learning_params.json
     if "learning_random_init_states_bool" in env_eval_function_params['learning_modes']: # if this bool is True, init_cell_state_value is ignored
@@ -273,6 +275,7 @@ def flag_automata(env_eval_function_params, analysis_dir, run, gen, nb_eval, nb_
                              init_cell_state_value=init_cell_state_value,
                              nn_controller=env_eval_function_params['controller'],
                              agent_controller_weights=weights,
+                             nb_intrasteps=env_eval_function_params['nb_intrasteps'],
                              verbose_debug_bool=env_eval_function_params['verbose_debug'],
                              analysis_dir=env_eval_function_params['analysis_dir'])
 
@@ -284,6 +287,10 @@ def flag_automata(env_eval_function_params, analysis_dir, run, gen, nb_eval, nb_
         flag = env.get_flag_from_grid()
         flags.append(env.convert_flag_to_list(flag))
         flags_distance = env.eval_flags_distance(flag) #check
+
+        # To write and plot ANN learning mechanism
+        flag_signals = env.get_flag_signals_from_grid()
+        flags_signals.append(env.convert_flag_to_list(flag_signals))
         
         if step >= time_window_start and step <= time_window_end:
             in_t_window_zone_bool = True
@@ -298,7 +305,7 @@ def flag_automata(env_eval_function_params, analysis_dir, run, gen, nb_eval, nb_
         
     mean_tw_flags_distances = sum_flags_distances/(time_window_end - time_window_start)
     if mean_tw_flags_distances < best_fit:
-        env.write_flag_data_learning(run=run, gen=gen, nb_eval=nb_eval, nb_ind=nb_ind, time_steps=time_steps, flags_distances=flags_distances, in_t_window_zone_bools=in_t_window_zone_bools, flags=flags, weights=weights, deleted_agents_per_step=None, nb_moves_per_step=None, analysis_dir=analysis_dir)
+        env.write_flag_data_learning(run=run, gen=gen, nb_eval=nb_eval, nb_ind=nb_ind, time_steps=time_steps, flags_distances=flags_distances, in_t_window_zone_bools=in_t_window_zone_bools, flags=flags, flags_signals=flags_signals, weights=weights, deleted_agents_per_step=None, nb_moves_per_step=None, analysis_dir=analysis_dir)
         env.write_controller_data_for_pogobots(run=run, gen=gen, nb_eval=nb_eval, nb_ind=nb_ind, analysis_file=analysis_dir['data']+ f"/data_env_run_{run:03}_individual_controller_pogobots.txt") # overwrite previous saved files, to keep the best ind controller
 
     return (mean_tw_flags_distances,) # it is important to return a tuple (deap framework)
@@ -336,6 +343,7 @@ def sliding_puzzle_incremental(env_eval_function_params, analysis_dir, run, gen,
                              init_cell_state_value=init_cell_state_value,
                              nn_controller=env_eval_function_params['controller'],
                              agent_controller_weights=weights,
+                             nb_intrasteps=env_eval_function_params['nb_intrasteps'],
                              verbose_debug_bool=env_eval_function_params['verbose_debug'],
                              analysis_dir=env_eval_function_params['analysis_dir'])
 
@@ -343,6 +351,7 @@ def sliding_puzzle_incremental(env_eval_function_params, analysis_dir, run, gen,
 
     in_t_window_zone_bools = []
     flags = []
+    flags_signals = []
 
     flags_distance = 0.0
     sum_flags_distances = 0.0
@@ -363,6 +372,10 @@ def sliding_puzzle_incremental(env_eval_function_params, analysis_dir, run, gen,
         flags_distance = env.eval_flags_distance(flag)
         deleted_agents_per_step.append([a.pos for a in agents_to_delete])
         
+        # To write and plot ANN learning mechanism
+        flag_signals = env.get_flag_signals_from_grid()
+        flags_signals.append(env.convert_flag_to_list(flag_signals))
+
         if step >= time_window_start and step <= time_window_end:
             in_t_window_zone_bool = True
             sum_flags_distances += flags_distance
@@ -376,9 +389,10 @@ def sliding_puzzle_incremental(env_eval_function_params, analysis_dir, run, gen,
                                                     noise_std=noise_std)
         nb_moves_per_step.append(nb_moves)
 
+
     mean_tw_flags_distances = sum_flags_distances/(time_window_end - time_window_start)
     if mean_tw_flags_distances < best_fit:
-        env.write_flag_data_learning(run=run, gen=gen, nb_eval=nb_eval, nb_ind=nb_ind, time_steps=time_steps, flags_distances=flags_distances, in_t_window_zone_bools=in_t_window_zone_bools, flags=flags, weights=weights, deleted_agents_per_step=deleted_agents_per_step, nb_moves_per_step=nb_moves_per_step, analysis_dir=analysis_dir)
+        env.write_flag_data_learning(run=run, gen=gen, nb_eval=nb_eval, nb_ind=nb_ind, time_steps=time_steps, flags_distances=flags_distances, in_t_window_zone_bools=in_t_window_zone_bools, flags=flags, flags_signals=flags_signals, weights=weights, deleted_agents_per_step=deleted_agents_per_step, nb_moves_per_step=nb_moves_per_step, analysis_dir=analysis_dir)
         env.write_controller_data_for_pogobots(run=run, gen=gen, nb_eval=nb_eval, nb_ind=nb_ind, analysis_file=analysis_dir['data']+ f"/data_env_run_{run:03}_individual_controller_pogobots.txt") # overwrite previous saved files, to keep the best ind controller
 
     # Restore original grid
@@ -396,7 +410,7 @@ def sliding_puzzle_incremental(env_eval_function_params, analysis_dir, run, gen,
 ###########################################################################
 
 class swarmGrid:
-    def __init__(self, grid_nb_rows, grid_nb_cols, learning_modes, flags_distance_mode, learning_with_noise_std, flag_pattern, flag_target, init_cell_state_value, nn_controller) -> None:
+    def __init__(self, grid_nb_rows, grid_nb_cols, learning_modes, flags_distance_mode, learning_with_noise_std, flag_pattern, flag_target, init_cell_state_value, nn_controller, nb_intrasteps) -> None:
       
         self.grid_nb_rows = grid_nb_rows
         self.grid_nb_cols = grid_nb_cols
@@ -405,6 +419,7 @@ class swarmGrid:
         self.agent_controller_weights = None
         self.agent_additional_weights = None
         self.agent_controller = nn_controller
+        self.nb_intrasteps = nb_intrasteps
 
         if nn_controller.output_size == 1:
             self.agent_type = agent1Output
@@ -664,6 +679,17 @@ class swarmGrid:
             # Random async update of this agent state
             state = self.compute_agent_state(agent=agent)
             agent.set_state(state, with_noise_bool, noise_std)
+            
+        
+        # Computing the remaining intrasteps
+        if self.nb_intrasteps is not None:
+            agents = self.get_agents()
+            for intrastep in range(2, self.nb_intrasteps+1): # one state computation per agent has already been done
+                # Random asynchronous update of the agent states (random update order)
+                np.random.shuffle(agents)
+                for agent in agents:
+                    state = self.compute_agent_state(agent=agent)
+                    agent.set_state(state, with_noise_bool, noise_std)
 
         return nb_moves_per_step
 
@@ -964,24 +990,6 @@ class swarmGrid:
     def setup_sliding_puzzle_phase1_VS_phase2(run, setup_name, nb_repetitions, sliding_puzzle_learning_best_inds_per_phase, sliding_puzzle_learning_ticks, sliding_puzzle_learning_proba_move, 
                                               grid_nb_rows, grid_nb_cols, learning_modes, learning_with_noise_std, flag_pattern, init_cell_state_value, nn_controller, time_steps,analysis_dir):
         global verbose_str
-
-        # best_ind del=0 file 20-04-58 : 10,791,9493,1,0.0,"[-0.012560697342902754, -2.4218532064886547, -11.284764996702298, -3.83551410035861, 0.083622246643351, 5.5113126967703066, -0.0027867433240647416, -11.629436788302101, 5.009320936447007, -17.704798393117848, -10.896845332860472, -24.493805009057088, 2.5093953686045802, 5.108077537144663, 13.560729551675559, 1.3333431480092919]"
-        # best_ind del=0.1 file 22-47-36 : 3,723,8677,2,0.0210600459373937,"[0.7551013499973216, -0.8099165077998569, 0.39403386311516464, -3.0751653808831234, -1.5472970783237112, 0.12214498389552143, 0.4242082294164468, -1.004712399587744, -4.648831756659906, -0.6800924749548437, -0.7739346754676364, 0.6693057234261393, -0.6723684639597962, 1.755774979565761, -1.171903351840752, 0.07096918320204165]"
-        # best_ind del=[0.0, 0.1] file 22-46-52 : 6,792,9506,2,0.0115501975350683,"[-0.9489165395619286, -0.5070084158891089, -3.307401823857753, 1.2321234062873245, -0.6437943140104423, -0.5373127755880184, -1.2178955303840306, -0.9360873065469761, 1.9483769709668306, 0.581890195712445, -2.7724818107110933, -4.384791894596162, 0.7172862086219275, -0.04168444524174454, 2.29416315533213, -0.7267384958587466]"
-
-        # sliding_puzzle_learning_best_inds_per_phase = [
-        #     [-0.012560697342902754, -2.4218532064886547, -11.284764996702298, -3.83551410035861, 0.083622246643351, 5.5113126967703066, -0.0027867433240647416, -11.629436788302101, 5.009320936447007, -17.704798393117848, -10.896845332860472, -24.493805009057088, 2.5093953686045802, 5.108077537144663, 13.560729551675559, 1.3333431480092919],
-        #     [0.7551013499973216, -0.8099165077998569, 0.39403386311516464, -3.0751653808831234, -1.5472970783237112, 0.12214498389552143, 0.4242082294164468, -1.004712399587744, -4.648831756659906, -0.6800924749548437, -0.7739346754676364, 0.6693057234261393, -0.6723684639597962, 1.755774979565761, -1.171903351840752, 0.07096918320204165],
-        #     [-0.9489165395619286, -0.5070084158891089, -3.307401823857753, 1.2321234062873245, -0.6437943140104423, -0.5373127755880184, -1.2178955303840306, -0.9360873065469761, 1.9483769709668306, 0.581890195712445, -2.7724818107110933, -4.384791894596162, 0.7172862086219275, -0.04168444524174454, 2.29416315533213, -0.7267384958587466]
-        # ]
-
-        # best_ind del=[0.0, 0.15] file 04-09-13 : 9,1085,13025,2,0.0203556016817295,"[-2.3281762977773464, 1.0897984741831388, -3.4380823318850102, -5.364419682576576, 0.6450558907808008, 7.277072552073939, -2.3197060681368376, -0.2268261857899258, -2.682882037659171, -4.3759456639819065, -2.8980748544702246, 3.508211315465028, 2.0592799284359655, 1.7388241842799008, -0.8434797482496187, 4.358683203841405]"
-        # best_ind del=0.15 file 04-13-33 : 0,1166,13998,2,0.045280784863846,"[-0.7838250959482946, -0.7064742791885482, -1.2267676994042034, -1.8622634802345577, -0.4974216044177394, 0.1125867910423979, 0.26435862083172573, -1.0407262077118675, 0.965503030713558, 0.8680916996522677, 0.12551901135563304, -0.46385517149270317, -1.0230676163591752, -0.7711729763800076, 0.6248420517282114, 0.1715900060404594]"
-
-        # sliding_puzzle_learning_best_inds_per_phase = [
-        #     [-2.3281762977773464, 1.0897984741831388, -3.4380823318850102, -5.364419682576576, 0.6450558907808008, 7.277072552073939, -2.3197060681368376, -0.2268261857899258, -2.682882037659171, -4.3759456639819065, -2.8980748544702246, 3.508211315465028, 2.0592799284359655, 1.7388241842799008, -0.8434797482496187, 4.358683203841405],
-        #     [-0.7838250959482946, -0.7064742791885482, -1.2267676994042034, -1.8622634802345577, -0.4974216044177394, 0.1125867910423979, 0.26435862083172573, -1.0407262077118675, 0.965503030713558, 0.8680916996522677, 0.12551901135563304, -0.46385517149270317, -1.0230676163591752, -0.7711729763800076, 0.6248420517282114, 0.1715900060404594]
-        # ]
         
         for n in range(nb_repetitions):
             # for best_ind_per_phase, phase in zip(sliding_puzzle_learning_best_inds_per_phase, [1, 2, 3]): # sliding_puzzle_learning_best_inds_per_phase = [best ind phase1, best ind phase2]
@@ -997,6 +1005,7 @@ class swarmGrid:
                                              init_cell_state_value=init_cell_state_value,
                                              nn_controller=nn_controller,
                                              agent_controller_weights=best_ind_per_phase,
+                                             nb_intrasteps=None,
                                              verbose_debug_bool=False,
                                              analysis_dir=analysis_dir)
 
@@ -1061,6 +1070,7 @@ class swarmGrid:
                                             init_cell_state_value=init_cell_state_value,
                                             nn_controller=nn_controller,
                                             agent_controller_weights=agent_controller_weights,
+                                            nb_intrasteps=None,
                                             verbose_debug_bool=False,
                                             analysis_dir=analysis_dir)
 
@@ -1159,6 +1169,19 @@ class swarmGrid:
     
     #---------------------------------------------------
 
+    def get_flag_signals_from_grid(self):
+        flag_signals = {}
+        for pos in self.grid_map_pos_agent.keys():
+            if self.grid_map_pos_agent[pos] is not None:
+                flag_signals[pos] = self.grid_map_pos_agent[pos].get_external_chemicals_to_spread()[0]
+            else:
+                # flag_signals[pos] = self.default_missing_neighbor_state
+                flag_signals[pos] = None
+
+        return flag_signals
+
+    #---------------------------------------------------
+
     def eval_flags_distance(self, flag):
 
         sum_states = 0.0
@@ -1193,23 +1216,23 @@ class swarmGrid:
             save_data_to_csv(analysis_dir['root']+"/data_all_runs/data_env_flag_target.csv", [[0, 0, 0, 0,  str(self.flag_target).strip(), 0]], header = ["Generation", "Step", "Flags_distance", "Time_window_zone", "Flag", "Individual"])
 
     #---------------------------------------------------
-    
-    def write_flag_data_learning(self, run, gen, nb_eval, nb_ind, time_steps, flags_distances, in_t_window_zone_bools, flags, weights, deleted_agents_per_step, nb_moves_per_step, analysis_dir):
+
+    def write_flag_data_learning(self, run, gen, nb_eval, nb_ind, time_steps, flags_distances, in_t_window_zone_bools, flags, flags_signals, weights, deleted_agents_per_step, nb_moves_per_step, analysis_dir):
 
         from learning_initializations import save_data_to_csv
 
         file_path = analysis_dir['data']+ f"/data_env_flag/data_env_flag_run_{run:03}_gen_{gen:05}_eval_{nb_eval:07}.csv"
         if not (os.path.exists(file_path)):
             os.makedirs(analysis_dir['data']+"/data_env_flag/", exist_ok=True)
-            save_data_to_csv(file_path, [], header = ["Generation", "Nb_eval", "Nb_ind", "Step", "Flags_distance", "Time_window_zone", "Flag", "Individual", "Deleted_agents_positions", "Nb_moves"])
+            save_data_to_csv(file_path, [], header = ["Generation", "Nb_eval", "Nb_ind", "Step", "Flags_distance", "Time_window_zone", "Flag", "Flag_signals", "Individual", "Deleted_agents_positions", "Nb_moves"])
         
         if deleted_agents_per_step is None:
             deleted_agents_per_step = [[] for _ in range(time_steps)]
             nb_moves_per_step = [[] for _ in range(time_steps)]
-        
+
         data_env_flag = []
         for step in range(time_steps):
-            data_env_flag.append([str(gen), str(nb_eval), str(nb_ind), str(step), str(flags_distances[step]).strip(), str(in_t_window_zone_bools[step]).strip(), str(flags[step]).strip(), str(weights).strip(), str(deleted_agents_per_step[step]).strip(), str(nb_moves_per_step[step]).strip()])
+            data_env_flag.append([str(gen), str(nb_eval), str(nb_ind), str(step), str(flags_distances[step]).strip(), str(in_t_window_zone_bools[step]).strip(), str(flags[step]).strip(), str(flags_signals[step]).strip(), str(weights).strip(), str(deleted_agents_per_step[step]).strip(), str(nb_moves_per_step[step]).strip()])
 
         save_data_to_csv(file_path, data_env_flag)
 
@@ -1349,7 +1372,7 @@ class swarmGrid:
         else:
             if nb_ind is not None:
                 file_name = f"run_{run:03}_gen_{gen:05}_eval_{nb_eval:07}_individual_{nb_ind:03}"
-                plt.title(f"Flag states - learning.\nRun {run}, gen {gen}, nb_eval {nb_eval}, individual {nb_ind}, step {step}.\nFlags distance = {fitness}", fontsize=12)       
+                plt.title(f"Flag states - learning.\nRun {run}, gen {gen}, nb_eval {nb_eval}, individual {nb_ind}, step {step}.\nFlags distance = {fitness}", fontsize=10)       
                 dir_name = analysis_dir_plots+ f"/{file_name}/flag"
                 if not os.path.exists(dir_name):
                     os.makedirs(dir_name, exist_ok=True)
@@ -1435,30 +1458,6 @@ class swarmGrid:
 
         plt.clf()
         plt.close()
-
-    #---------------------------------------------------
-
-    # @staticmethod # TODO: not used for now
-    # def plot_learning_sliding_puzzle_nb_moves_from_file(data_flag_file, run, grid_size, analysis_dir_plots):
-
-    #     setup_name = "learning_sliding_puzzle"
-    #     dataset = pd.read_csv(data_flag_file)
-    #     x = dataset['Step'].tolist()
-    #     y = dataset['Nb_moves'].tolist()
-    #     plt.plot(x, y)
-
-    #     plt.ylim(-0.1, grid_size) # 0 and 1 are respectively min and max values of flag distance
-    #     plt.xlabel("Steps", fontsize=12)
-    #     plt.ylabel("Nb moves", fontsize=12)
-    #     plt.title(f"Number of agents' moves related to the flag development over steps. Run {run}\n{setup_name}", fontsize=12)
-
-    #     dir_name = analysis_dir_plots+"/"+data_flag_file.replace()
-    #     if not (os.path.exists(dir_name)):
-    #         os.makedirs(dir_name, exist_ok=True)
-    #     plt.savefig(f"{dir_name}/{setup_name}_flag_nb_moves_run_{run:03}.png")
-
-    #     plt.clf()
-    #     plt.close()
 
     #---------------------------------------------------
 

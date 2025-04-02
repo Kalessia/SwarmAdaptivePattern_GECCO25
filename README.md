@@ -18,3 +18,11 @@ This project implements the evolutionary algorithm **CMA-ES to evolve the optima
 
 ## Details
 - In the function <u>plot_flag</u> in <u>environments.py</u>: the plot of the signal pattern does not work for <u>grid_nb_rows</u> ≤ 10 and <u>grid_nb_cols</u> ≤ 10 because signal values can be negative. **Easy fix**: comment out the special debug display for small grids.
+- To reproduce the paper results, set:
+  - "env_name": "sliding_puzzle_incremental"
+  - "sliding_puzzle_incremental_switch_eval": 0
+  - "sliding_puzzle_incremental_nb_deletions_units": null
+  - "sliding_puzzle_incremental_nb_deletions_percent": [0.0, X], where X is the complement of density (i.e., 1.0 - density).
+- In <u>learning_params.json</u>, the parameter <u>sliding_puzzle_incremental_nb_deletions_percent</u> corresponds to the complement of density (1.0 - density).
+  Example 1: If density = 1.0 (meaning all grid positions are occupied by robots), then sliding_puzzle_incremental_nb_deletions_percent = 0.0.
+  Example 2: If density = 0.8 (meaning 20% of the grid positions are empty), then sliding_puzzle_incremental_nb_deletions_percent = 0.2.

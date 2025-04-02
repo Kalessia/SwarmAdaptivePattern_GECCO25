@@ -9,20 +9,20 @@ This project implements the evolutionary algorithm **CMA-ES to evolve the optima
 
 ## **To run an experiment: Learning, Swarm (generalization), and Plots**
 
--   Set the learning and generalization parameters by modifying <u>learning_params.json</u> and <u>swarm_params.json</u>. The parameters are already settled to reproduce the paper results.
--   In the Bash script <u>launch.sh</u>, uncomment the lines that you wish to run. If you run <u>learning_main.py</u> only, you can later execute <u>swarm_main.py</u> or the analysis scripts by commenting out <u>learning_main.py</u> and filling the <u>learning_analysis_dir</u> and <u>swarm_analysis_dir</u> fields.
--   From the *src* directory, execute the Bash script <u>launch.sh</u>:
+-   Set the learning and generalization parameters by modifying **learning_params.json** and **swarm_params.json**. The parameters are already settled to reproduce the paper results.
+-   In the Bash script **launch.sh**, uncomment the lines that you wish to run. If you run **learning_main.py** only, you can later execute **swarm_main.py** or the analysis scripts by commenting out **learning_main.py** and filling the **learning_analysis_dir** and **swarm_analysis_dir** fields.
+-   From the *src* directory, execute the Bash script **launch.sh**:
     `~/SwarmAdaptivePattern_GECCO25/src$ ./launch.sh` 
--   The results will be stored in a newly created <u>simulationAnalysis</u> folder.
+-   The results will be stored in a newly created **simulationAnalysis** folder.
 
 
 ## Details
-- In the function <u>plot_flag</u> in <u>environments.py</u>: the plot of the signal pattern does not work for <u>grid_nb_rows</u> ≤ 10 and <u>grid_nb_cols</u> ≤ 10 because signal values can be negative. **Easy fix**: comment out the special debug display for small grids.
+- In the function **plot_flag** in **environments.py**: the plot of the signal pattern does not work for **grid_nb_rows** ≤ 10 and **grid_nb_cols** ≤ 10 because signal values can be negative. **Easy fix**: comment out the special debug display for small grids.
 - To reproduce the paper results, set:
   - "env_name": "sliding_puzzle_incremental"
   - "sliding_puzzle_incremental_switch_eval": 0
   - "sliding_puzzle_incremental_nb_deletions_units": null
   - "sliding_puzzle_incremental_nb_deletions_percent": [0.0, X], where X is the complement of density (i.e., 1.0 - density).
-- In <u>learning_params.json</u>, the parameter <u>sliding_puzzle_incremental_nb_deletions_percent</u> corresponds to the complement of density (1.0 - density).
+- In **learning_params.json**, the parameter **sliding_puzzle_incremental_nb_deletions_percent** corresponds to the complement of density (1.0 - density).
   Example 1: If density = 1.0 (meaning all grid positions are occupied by robots), then sliding_puzzle_incremental_nb_deletions_percent = 0.0.
   Example 2: If density = 0.8 (meaning 20% of the grid positions are empty), then sliding_puzzle_incremental_nb_deletions_percent = 0.2.

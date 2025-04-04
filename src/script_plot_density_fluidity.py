@@ -72,8 +72,8 @@ def plot_sliding_puzzle_incremental_learning_density_fluidity(experiences_dir_to
         heatmap_plot.add_patch(crossed_box)
 
     exp_setup_and_dims = dir.split('_')
-    plt.xlabel(f"Density ($\\rho$)\n _", fontsize=16)
-    plt.ylabel(f"Fluidity ($\\Phi$)", fontsize=16)
+    plt.xlabel(f"Density ($\\rho$)", fontsize=12)
+    plt.ylabel(f"Fluidity ($\\Phi$)", fontsize=12)
     plt.title(f"Performance of the best-ever controllers\ntwo-bands {exp_setup_and_dims[-1]}, 11 runs per condition", fontsize=18)
 
     data.to_csv(f"simulationAnalysis/plot_sliding_puzzle_incremental_{exp_setup_and_dims[-2]}_{exp_setup_and_dims[-1]}_learning_density_fluidity.csv") # write data

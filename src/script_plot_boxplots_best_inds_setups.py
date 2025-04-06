@@ -1,11 +1,9 @@
-import os
 import json
 import matplotlib
 matplotlib.use('TkAgg')  # Use TkAgg backend instead of QtAgg
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import numpy as np
 
 
 

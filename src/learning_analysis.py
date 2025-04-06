@@ -375,7 +375,7 @@ def plot_all_runs_data(params):
     swarmGrid.plot_flag(grid_nb_rows=params['grid']['grid_nb_rows'],
                     grid_nb_cols=params['grid']['grid_nb_cols'],
                     setup_name=None,
-                    run=run,
+                    run=None,
                     nb_ind=None,
                     gen=0,
                     nb_eval=0,
@@ -481,7 +481,7 @@ def plot_best_inds_ever(dataset_path, nb_evals, grid_size, nb_deletions, density
     plt.title(f"Learning $\\rho$={density}, $\\Phi$={fluidity}" + f"\n{params['grid']['flag_pattern']} {params['grid']['grid_nb_rows']}x{params['grid']['grid_nb_cols']}, {params['evolutionary_settings']['nb_runs']} runs, only best ever", fontsize=18)
     plt.xlabel("Evaluations", fontsize=18)
     plt.ylabel("Distance", fontsize=18)
-    plt.legend(loc="upper right") 
+    # plt.legend(loc="upper right") 
     plt.tight_layout()
 
     plt.savefig(save_filename)
@@ -540,7 +540,7 @@ def plot_best_inds_per_gen(dataset_path, nb_evals, grid_size, nb_deletions, swit
                 best_fit = fit
             best_fitnesses_per_gen_ever.append(best_fit)
 
-        plt.step(range(0, len(evaluations)), best_fitnesses_per_gen_ever, where='post', label= f"run {run}") # plot
+        plt.step(range(0, len(evaluations)), best_fitnesses_per_gen_ever, where='post') # plot
 
     plt.title("Flags distance over generations\nbest individuals distributions over evolution", fontsize=14)
     plt.xlabel("Evaluations", fontsize=12)
@@ -678,14 +678,14 @@ if (__name__ == "__main__"):
     params['plot_with_animation_bool'] = args.plot_with_animation_bool
 
     # Launch plots
-    if params['with_parallelization_bool']:
-        task_queue = [] # create a queue of tasks to execute
-        for run in range(params['evolutionary_settings']['nb_runs']):
-            task_queue.append((run, params.copy()))
-        parallelize_processes(task_queue, params['with_parallelization_nb_free_cores'])
-    else:
-        for run in range(params['evolutionary_settings']['nb_runs']):
-            plot_single_run_data(run, params)
+    # if params['with_parallelization_bool']:
+    #     task_queue = [] # create a queue of tasks to execute
+    #     for run in range(params['evolutionary_settings']['nb_runs']):
+    #         task_queue.append((run, params.copy()))
+    #     parallelize_processes(task_queue, params['with_parallelization_nb_free_cores'])
+    # else:
+    #     for run in range(params['evolutionary_settings']['nb_runs']):
+    #         plot_single_run_data(run, params)
 
-    write_all_runs_data(args.learning_analysis_dir)
+    # write_all_runs_data(args.learning_analysis_dir)
     plot_all_runs_data(params)

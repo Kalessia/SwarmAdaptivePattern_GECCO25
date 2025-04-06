@@ -34,6 +34,7 @@ def script_plot_boxplots_best_inds_setups(experiences_dir_to_plot_list):
             p_move = 0.0 # if density is max, agents can't move
 
         nb_runs = learning_params['evolutionary_settings']['nb_runs']
+        intrasteps = learning_params['evolutionary_settings']['sliding_puzzle_nb_intrasteps'] or 0 # this line replaces 0, False, and '' with 0 
 
         dataset = pd.read_csv(f"{dir}/learning/data_all_runs/data_evo_all_runs_best_ind_per_run_per_phase.csv")
         dataset = dataset[dataset.Learning_phase==phase]
@@ -42,8 +43,9 @@ def script_plot_boxplots_best_inds_setups(experiences_dir_to_plot_list):
             all_dirs_rows.append({
                 'Exp_id': exp_id,
                 'Run': row.Run,
-                'Fitness': row.Fitness,
-                'Label': f"$\\rho$={density}\n$\\Phi$={p_move}"
+                'Fitness': row.Fitness
+                , 'Label': f"$\\rho$={density},$\\Phi$={p_move}\nintr={intrasteps}" # use this line if you work with intrasteps
+                # , 'Label': f"$\\rho$={density}\n$\\Phi$={p_move}" # use this line if you DON'T work with intrasteps
             })
 
         i += 1
@@ -65,7 +67,8 @@ def script_plot_boxplots_best_inds_setups(experiences_dir_to_plot_list):
     exp_setup_and_dims = dir.split('_')
     plt.xlabel("Sliding-puzzle setups", fontsize=12)
     plt.ylabel("Flags distance", fontsize=12)
-    plt.ylim(-0.1, 1.1) # 0 and 1 are respectively min and max values of flag distance (fitness)
+    # plt.ylim(-0.1, 1.1) # 0 and 1 are respectively min and max values of flag distance (fitness)
+    plt.ylim(-0.1, 0.25) # 0 and 1 are respectively min and max values of flag distance (fitness)
     plt.title(f"Best individuals across sliding-puzzle experiments ($\\rho$, $\\Phi$)\n{exp_setup_and_dims[-2]} {exp_setup_and_dims[-1]}, {nb_runs} runs", fontsize=14)
 
     data.to_csv(f"simulationAnalysis/plot_sliding_puzzle_incremental_{exp_setup_and_dims[-2]}_{exp_setup_and_dims[-1]}_learning_boxplots_best_inds_setups.csv") # write data
@@ -80,7 +83,8 @@ def script_plot_boxplots_best_inds_setups(experiences_dir_to_plot_list):
 
 
 experiences_dir_to_plot_list = [
-    "/home/kalessia/SwarmAdaptivePattern_GECCO25/src/simulationAnalysis/sliding_puzzle_incremental_2025-03-26_00-54-56_two-bands_16x16"
+    "/home/loi/Documents/SwarmAdaptivePattern_GECCO25/src/simulationAnalysis/sliding_puzzle_incremental_2025-04-05_21-35-56_two-bands_16x16",
+    "/home/loi/Documents/SwarmAdaptivePattern_GECCO25/src/simulationAnalysis/sliding_puzzle_incremental_2025-04-05_01-34-56_two-bands_16x16"
 ]
 
 script_plot_boxplots_best_inds_setups(experiences_dir_to_plot_list)

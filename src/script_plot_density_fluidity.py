@@ -34,7 +34,7 @@ def plot_sliding_puzzle_incremental_learning_density_fluidity(experiences_dir_to
 
             p_move = learning_params['evolutionary_settings']['sliding_puzzle_incremental']['sliding_puzzle_incremental_proba_move'] # fluidity ticks
             
-            if learning_params['evolutionary_settings']['sliding_puzzle_incremental']['sliding_puzzle_incremental_switch_eval'] > 13000:
+            if learning_params['evolutionary_settings']['sliding_puzzle_incremental']['sliding_puzzle_incremental_switch_eval'] > 13000: # be careful with this line, 13000 is an arbitrary value
                 density = round( (learning_params['grid']['grid_size'] - learning_params['evolutionary_settings']['sliding_puzzle_incremental']['sliding_puzzle_incremental_nb_deletions_ticks'][0] ) / learning_params['grid']['grid_size'], 2) # density ticks
                 phase = 1
             else:
@@ -74,7 +74,7 @@ def plot_sliding_puzzle_incremental_learning_density_fluidity(experiences_dir_to
     exp_setup_and_dims = dir.split('_')
     plt.xlabel(f"Density ($\\rho$)", fontsize=12)
     plt.ylabel(f"Fluidity ($\\Phi$)", fontsize=12)
-    plt.title(f"Performance of the best-ever controllers\ntwo-bands {exp_setup_and_dims[-1]}, 11 runs per condition", fontsize=18)
+    plt.title(f"Performance of the best-ever controllers\n{exp_setup_and_dims[-2]}_{exp_setup_and_dims[-1]}, 11 runs per condition", fontsize=18)
 
     data.to_csv(f"simulationAnalysis/plot_sliding_puzzle_incremental_{exp_setup_and_dims[-2]}_{exp_setup_and_dims[-1]}_learning_density_fluidity.csv") # write data
     plt.savefig(f"simulationAnalysis/plot_sliding_puzzle_incremental_{exp_setup_and_dims[-2]}_{exp_setup_and_dims[-1]}_learning_density_fluidity.png")

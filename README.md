@@ -1,7 +1,15 @@
 # SwarmAdaptivePattern_GECCO25
 This project implements the evolutionary algorithm **CMA-ES to evolve the optimal robot controller** (D), enabling each robot of a swarm to **reproduce a phenotypic pattern** at the group scale, matching the **visual display target** (A). The swarm of **moving robots** is modeled in an original **sliding-puzzle setup** (C) — a grid where each cell can either be occupied by an autonomous robot or remain empty. This **distributed system** is characterized by two parameters: **density**, which refers to the number of robots relative to the total available positions in the grid; and **fluidity**, which represents the probability of an agent moving to a nearby empty position at each time step. **Communication between robots is local**, occurring through **signal exchanges** in a **neighbor-to-neighbor von Neumann topology** (D).
 
-> **To cite this work**: Alessia Loi and Nicolas Bredeche. 2025. Evolving Neural Controllers for Adaptive Visual Pattern Formation by a Swarm of Robots. In Proceedings of GECCO 2025 @ Málaga (hybrid) The Genetic and Evolutionary Computation Conference (GECCO ’25). ACM, New York, NY, USA, 9 pages
+> **To cite this work**: @inproceedings{Loi2025,
+  author    = {Alessia Loi and Nicolas Bredeche},
+  title     = {Evolving Neural Controllers for Adaptive Visual Pattern Formation by a Swarm of Robots},
+  booktitle = {Proceedings of GECCO 2025 @ Málaga (hybrid), The Genetic and Evolutionary Computation Conference (GECCO '25)},
+  year      = {2025},
+  publisher = {ACM},
+  address   = {New York, NY, USA},
+  pages     = {1--9}
+}
 
 > **Acknowledgement**: This work is supported by the Agence Nationale pour la Recherche under Grant ANR-24-CE33-7791
 
